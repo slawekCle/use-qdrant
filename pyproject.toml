@@ -1,0 +1,13 @@
+[project]
+name = "kafka-celery-worker"
+version = "0.1.0"
+description = "Celery worker consuming tasks from Kafka and performing HTTP requests"
+requires-python = ">=3.12"
+dependencies = [
+  "celery[kafka]==5.3.6",
+  "requests==2.31.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
