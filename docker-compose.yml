@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  zookeeper:
+    image: bitnami/zookeeper:3.9
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: bitnami/kafka:3.6
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+
+  worker:
+    build: .
+    depends_on:
+      - kafka
+    environment:
+      - CELERY_BROKER_URL=kafka://kafka:9092
+      - CELERY_TASK_TOPIC=celery
+      - HTTP_TIMEOUT=10
+    command: ["celery", "-A", "worker.celery_app", "worker", "--loglevel=info"]
